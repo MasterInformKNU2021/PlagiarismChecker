@@ -1,0 +1,77 @@
+#include <iostream>
+
+int main()
+{
+    std::cout << "Hi, world!\n";
+    return 0;
+}
+
+while (column < code.size() && is_valid_number_part(code[column]))/
+
+std::pair<size_t, std::pair<size_t, std::pair<size_t, std::pair<size_t, std::pair<size_t, std::pair<size_t, size_t>>>>>> a;
+
+'1 '1
+$
+#if 0
+#define f 0
+#if 0
+
+#elif 1
+
+#else
+
+#endif // 0
+
+#endif // 0
+
+0xab123
+0xabv123
+0b010101101
+0b0101014101
+
+
+123123.32.3
+12'3'1'2'3'1.1'2'3'1
+12'3'1'2'3'.1'2'3'1
+12'3'1'2'3'1.'2'3'1
+1212''233
+1212121'
+
+#adadsad
+
+a '1 * $ + a * 1 = 1j '\ sdsd '\'
+#include ;;;; .. () '
+#if 0 "" ''
+#endif
+'\3' '3' 'd' '\\' "sdsd\" sdsd\'" "ddsdssfsd ds \
+dsdsdjs lkjd lksjkldjaskdj lakjsdl\
+lsad kjaksjd a\
+dfs"
+{
+()
+}
+{([])}
+#define adasd \
+asdasd a\
+asda
+
+"adasdsada \
+asdad\
+sd
+
+1123 * a +* const volatile \ throw return <<<=
+214 adasd
+231222312312312312
+// sd sds d
+// adasdasda\
+sdsds
+
+/* sdsd */
+/* dsdsd sd sd s
+sdsd
+sd AS*/
+
+
+
+// sdsd
+" sdsdsd\
