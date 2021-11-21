@@ -1308,6 +1308,35 @@ public class Lexer {
         }
     }
 
+    private static void handleNotClosed(
+            CommonData data,
+            BetweenLinesData commentedCodeData,
+            BetweenLinesData stringConstantData,
+            BetweenLinesData preprocessorDirectivesData
+    ) {
+        if (commentedCodeData.isActive) {
+            createNewTokenError(
+                    data.tokenErrors,
+                    "Error, unfinished comment",
+                    commentedCodeData
+            );
+        }
+        if (stringConstantData.isActive) {
+            createNewTokenError(
+                    data.tokenErrors,
+                    "Error, unfinished string constant",
+                    stringConstantData
+            );
+        }
+        if (preprocessorDirectivesData.isActive) {
+            createNewTokenError(
+                    data.tokenErrors,
+                    "Error, unfinished preprocessor directives",
+                    preprocessorDirectivesData
+            );
+        }
+    }
+
     private static boolean nextToken(
             CommonData data,
             BetweenLinesData commentedCodeData,
@@ -1382,7 +1411,7 @@ public class Lexer {
     }
 
 
-    public static LexerOutput getTokens(String filePath) {
+    public static LexerOutput getTokensFromFile(String filePath) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
 
             if (faState == null) {
@@ -1401,40 +1430,22 @@ public class Lexer {
             while ((code = bufferedReader.readLine()) != null) {
                 data.code = code;
                 data.column = 0;
-                while (true) {
-                    if (!nextToken(
-                            data,
-                            commentedCodeData,
-                            stringConstantData,
-                            preprocessorDirectivesData
-                    )) {
-                        break;
-                    }
+                while (nextToken(
+                        data,
+                        commentedCodeData,
+                        stringConstantData,
+                        preprocessorDirectivesData
+                )) {
+
                 }
                 ++data.line;
             }
 
-            if (commentedCodeData.isActive) {
-                createNewTokenError(
-                        data.tokenErrors,
-                        "Error, unfinished comment",
-                        commentedCodeData
-                );
-            }
-            if (stringConstantData.isActive) {
-                createNewTokenError(
-                        data.tokenErrors,
-                        "Error, unfinished string constant",
-                        stringConstantData
-                );
-            }
-            if (preprocessorDirectivesData.isActive) {
-                createNewTokenError(
-                        data.tokenErrors,
-                        "Error, unfinished preprocessor directives",
-                        preprocessorDirectivesData
-                );
-            }
+            handleNotClosed(
+                    data,
+                    commentedCodeData,
+                    stringConstantData,
+                    preprocessorDirectivesData);
 
             return new LexerOutput(data.symbolTable.toArray(String[]::new), data.tokens.toArray(Token[]::new),
                     data.tokenErrors.toArray(TokenError[]::new));
@@ -1445,6 +1456,40 @@ public class Lexer {
         }
 
         return new LexerOutput();
+    }
+
+    public static LexerOutput getTokensFromLine(String line) {
+        if (faState == null) {
+            faState = new FAState();
+            generateFa();
+        }
+
+        CommonData data = new CommonData();
+
+        BetweenLinesData commentedCodeData = new BetweenLinesData();
+        BetweenLinesData stringConstantData = new BetweenLinesData();
+        BetweenLinesData preprocessorDirectivesData = new BetweenLinesData();
+
+        data.code = line;
+        data.column = 0;
+        while (nextToken(
+                data,
+                commentedCodeData,
+                stringConstantData,
+                preprocessorDirectivesData
+        )) {
+
+        }
+        ++data.line;
+
+        handleNotClosed(
+                data,
+                commentedCodeData,
+                stringConstantData,
+                preprocessorDirectivesData);
+
+        return new LexerOutput(data.symbolTable.toArray(String[]::new), data.tokens.toArray(Token[]::new),
+                data.tokenErrors.toArray(TokenError[]::new));
     }
 
     public static void outputLexerData(LexerOutput lexerOutput) {
