@@ -20,12 +20,25 @@ public class HelloApplication extends Application {
 
     public static void main(String[] args) {
         Lexer.LexerOutput lexerOutput = Lexer.getTokensFromFile("code.txt");
+
+        System.out.println("\n**************************  Lexer result for file:  *******************************\n");
+
         Lexer.outputLexerData(lexerOutput);
 
         lexerOutput = Lexer.getTokensFromLine(
                 "std::pair<size_t, std::pair<size_t, std::pair<size_t, std::pair<size_t," +
                         " std::pair<size_t, std::pair<size_t, size_t>>>>>> a;");
+
+        System.out.println("\n***********************  Lexer result for single Line:  ***************************\n");
+
+        System.out.println("Lexer result for single Line:");
         Lexer.outputLexerData(lexerOutput);
+
+        Lexer.LexerOutputLineByLine lexerOutputLineByLine = Lexer.getTokensFromFileLineByLine("code.txt");
+
+        System.out.println("\n********************  Lexer result for file line by line:  ************************\n");
+
+        Lexer.outputLexerDataLineByLine(lexerOutputLineByLine);
 
         System.exit(0);
     }

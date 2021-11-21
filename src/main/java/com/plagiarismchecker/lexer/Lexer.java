@@ -406,6 +406,24 @@ public class Lexer {
         }
     }
 
+    public static class LexerOutputLineByLine {
+        public String[] symbolTable;
+        public Token[][] tokensByLines;
+        public TokenError[] tokenErrors;
+
+        public LexerOutputLineByLine() {
+            symbolTable = new String[0];
+            tokensByLines = new Token[0][0];
+            tokenErrors = new TokenError[0];
+        }
+
+        public LexerOutputLineByLine(String[] symbolTable, Token[][] tokensByLines, TokenError[] tokenErrors) {
+            this.symbolTable = symbolTable;
+            this.tokensByLines = tokensByLines;
+            this.tokenErrors = tokenErrors;
+        }
+    }
+
     private static boolean isSpace(char c) {
         return Character.isWhitespace(c);
     }
@@ -1492,11 +1510,82 @@ public class Lexer {
                 data.tokenErrors.toArray(TokenError[]::new));
     }
 
+    public static LexerOutputLineByLine getTokensFromFileLineByLine(String filePath) {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
+
+            if (faState == null) {
+                faState = new FAState();
+                generateFa();
+            }
+
+            CommonData data = new CommonData();
+
+            List<Token[]> tokensByLines = new ArrayList<>();
+
+            BetweenLinesData commentedCodeData = new BetweenLinesData();
+            BetweenLinesData stringConstantData = new BetweenLinesData();
+            BetweenLinesData preprocessorDirectivesData = new BetweenLinesData();
+
+            String code;
+
+            while ((code = bufferedReader.readLine()) != null) {
+                data.code = code;
+                data.column = 0;
+                while (nextToken(
+                        data,
+                        commentedCodeData,
+                        stringConstantData,
+                        preprocessorDirectivesData
+                )) {
+
+                }
+
+                tokensByLines.add(data.tokens.toArray(Token[]::new));
+                data.tokens.clear();
+
+                ++data.line;
+            }
+
+            handleNotClosed(
+                    data,
+                    commentedCodeData,
+                    stringConstantData,
+                    preprocessorDirectivesData);
+
+            return new LexerOutputLineByLine(data.symbolTable.toArray(String[]::new), tokensByLines.toArray(Token[][]::new),
+                    data.tokenErrors.toArray(TokenError[]::new));
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        } catch (IOException e) {
+            System.out.println("Error while reading file");
+        }
+
+        return new LexerOutputLineByLine();
+    }
+
     public static void outputLexerData(LexerOutput lexerOutput) {
         String[] symbolTable = lexerOutput.symbolTable;
         Token[] tokens = lexerOutput.tokens;
         TokenError[] tokenErrors = lexerOutput.tokenErrors;
 
+        outputLexerDataTokenErrors(tokenErrors);
+        outputLexerDataTokens(tokens);
+        outputLexerDataSymbolTable(symbolTable);
+        outputLexerDataTokensFullInfo(tokens, symbolTable);
+    }
+
+    public static void outputLexerDataLineByLine(LexerOutputLineByLine lexerOutputLineByLine) {
+        String[] symbolTable = lexerOutputLineByLine.symbolTable;
+        Token[][] tokensByLines = lexerOutputLineByLine.tokensByLines;
+        TokenError[] tokenErrors = lexerOutputLineByLine.tokenErrors;
+
+        outputLexerDataTokenErrors(tokenErrors);
+        outputLexerDataTokensByLines(tokensByLines);
+        outputLexerDataSymbolTable(symbolTable);
+        outputLexerDataTokensFullInfoByLines(tokensByLines, symbolTable);
+    }
+
+    private static void outputLexerDataTokenErrors(TokenError[] tokenErrors) {
         if (tokenErrors.length == 0) {
             System.out.print("No errors\n\n");
         } else {
@@ -1506,10 +1595,19 @@ public class Lexer {
             }
             System.out.println();
         }
+    }
 
-        System.out.println("Tokens:");
+    private static void outputLexerDataTokens(Token[] tokens) {
+        outputLexerDataTokens(tokens, "", true);
+    }
+
+    private static void outputLexerDataTokens(Token[] tokens, String offset, boolean isOutputTitle) {
+        if (isOutputTitle) {
+            System.out.println("Tokens:");
+        }
+
         for (Token token : tokens) {
-            System.out.printf("( %-15s ", tokenToString[token.type.ordinal()]);
+            System.out.printf("%s( %-15s ", offset, tokenToString[token.type.ordinal()]);
             if (isSymbolType(token.type)) {
                 System.out.printf(", %-4d )", token.indexInSymbolTable);
             } else {
@@ -1519,16 +1617,40 @@ public class Lexer {
             System.out.println();
         }
         System.out.println();
+    }
 
+    private static void outputLexerDataTokensByLines(Token[][] tokensByLines) {
+        System.out.println("Tokens By Lines:");
+
+        for (int i = 0; i < tokensByLines.length; ++i) {
+            System.out.printf("Line: %d", i);
+            System.out.println();
+
+            Token[] tokens = tokensByLines[i];
+
+            outputLexerDataTokens(tokens, "    ", false);
+        }
+    }
+
+    private static void outputLexerDataSymbolTable(String[] symbolTable) {
         System.out.println("Symbol table:");
         for (int i = 0; i < symbolTable.length; ++i) {
             System.out.printf("Index: %-3d Symbol: |%s|\n", i, symbolTable[i]);
         }
         System.out.println();
+    }
 
-        System.out.println("Tokens (full info):");
+    private static void outputLexerDataTokensFullInfo(Token[] tokens, String[] symbolTable) {
+        outputLexerDataTokensFullInfo(tokens, symbolTable, "", true);
+    }
+
+    private static void outputLexerDataTokensFullInfo(Token[] tokens, String[] symbolTable, String offset, boolean isOutputTitle) {
+        if (isOutputTitle) {
+            System.out.println("Tokens (full info):");
+        }
+
         for (int i = 0; i < tokens.length; ++i) {
-            System.out.printf("Id: %-3d Type: %-15s Line: %4d[%-4d] ", i, tokenToString[tokens[i].type.ordinal()], tokens[i].line, tokens[i].column);
+            System.out.printf("%sId: %-3d Type: %-15s Line: %4d[%-4d] ", offset, i, tokenToString[tokens[i].type.ordinal()], tokens[i].line, tokens[i].column);
             if (isSymbolType(tokens[i].type)) {
                 System.out.printf("Symbol id: %-4d Symbol: |%s|", tokens[i].indexInSymbolTable, symbolTable[tokens[i].indexInSymbolTable]);
             } else {
@@ -1538,5 +1660,18 @@ public class Lexer {
             System.out.println();
         }
         System.out.println();
+    }
+
+    private static void outputLexerDataTokensFullInfoByLines(Token[][] tokensByLines, String[] symbolTable) {
+        System.out.println("Tokens By Lines (full info):");
+
+        for (int i = 0; i < tokensByLines.length; ++i) {
+            System.out.printf("Line: %d", i);
+            System.out.println();
+
+            Token[] tokens = tokensByLines[i];
+
+            outputLexerDataTokensFullInfo(tokens, symbolTable, "    ", false);
+        }
     }
 }
