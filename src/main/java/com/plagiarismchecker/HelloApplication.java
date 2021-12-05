@@ -12,34 +12,24 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        Scene scene = new Scene(fxmlLoader.load(), 1277, 904);
+        stage.setTitle("Plagiarism Checker");
         stage.setScene(scene);
         stage.show();
     }
 
     public static void main(String[] args) {
-        Lexer.LexerOutput lexerOutput = Lexer.getTokensFromFile("code.txt");
+        Lexer.LexerOutputLineByLine lexerOutputLineByLineForFirstText = Lexer.getTokensFromFileLineByLine("code1.txt");
+        Lexer.LexerOutputLineByLine lexerOutputLineByLineForSecondText = Lexer.getTokensFromFileLineByLine("code2.txt");
 
-        System.out.println("\n**************************  Lexer result for file:  *******************************\n");
+        Lexer.outputLexerDataLineByLine(lexerOutputLineByLineForFirstText);
+        Lexer.outputLexerDataLineByLine(lexerOutputLineByLineForSecondText);
 
-        Lexer.outputLexerData(lexerOutput);
-
-        lexerOutput = Lexer.getTokensFromLine(
-                "std::pair<size_t, std::pair<size_t, std::pair<size_t, std::pair<size_t," +
-                        " std::pair<size_t, std::pair<size_t, size_t>>>>>> a;");
-
-        System.out.println("\n***********************  Lexer result for single Line:  ***************************\n");
-
-        System.out.println("Lexer result for single Line:");
-        Lexer.outputLexerData(lexerOutput);
-
-        Lexer.LexerOutputLineByLine lexerOutputLineByLine = Lexer.getTokensFromFileLineByLine("code.txt");
-
-        System.out.println("\n********************  Lexer result for file line by line:  ************************\n");
-
-        Lexer.outputLexerDataLineByLine(lexerOutputLineByLine);
+        Lexer.Token[][] firstTokens = lexerOutputLineByLineForFirstText.tokensByLines;
+        Lexer.Token[][] secondTokens = lexerOutputLineByLineForSecondText.tokensByLines;
 
         System.exit(0);
+
+//        launch();
     }
 }

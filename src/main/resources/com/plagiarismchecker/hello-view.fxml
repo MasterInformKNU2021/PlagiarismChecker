@@ -1,16 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.plagiarismchecker.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
+<VBox alignment="CENTER" prefHeight="904.0" prefWidth="1277.0" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="com.plagiarismchecker.HelloController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+   <children>
+      <HBox prefHeight="474.0" prefWidth="1237.0">
+         <children>
+            <VBox alignment="CENTER" prefHeight="469.0" prefWidth="598.0">
+               <children>
+                  <Label text="Put First Text Here">
+                     <font>
+                        <Font size="51.0" />
+                     </font>
+                  </Label>
+                  <TextArea fx:id="firstText" prefHeight="405.0" prefWidth="507.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </TextArea>
+               </children>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="469.0" prefWidth="84.0" />
+            <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="469.0" prefWidth="564.0">
+               <children>
+                  <Label text="Put Second Text Here">
+                     <font>
+                        <Font size="51.0" />
+                     </font>
+                  </Label>
+                  <TextArea fx:id="secondText" prefHeight="405.0" prefWidth="507.0">
+                     <font>
+                        <Font size="31.0" />
+                     </font>
+                  </TextArea>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <Button mnemonicParsing="false" onAction="#onButtonClick" text="Start Analyze">
+         <font>
+            <Font size="31.0" />
+         </font>
+      </Button>
+      <Label text="Result">
+         <font>
+            <Font size="52.0" />
+         </font>
+      </Label>
+      <TextArea fx:id="resultText" editable="false" prefHeight="200.0" prefWidth="200.0">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </TextArea>
+   </children>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
 </VBox>
