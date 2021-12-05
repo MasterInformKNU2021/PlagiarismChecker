@@ -345,7 +345,7 @@ public class Lexer {
             "Invalid"
     };
 
-    public static class Token {
+    public static class Token implements Comparable<Token> {
         public int line;
         public int column;
         public int indexInSymbolTable;
@@ -369,6 +369,11 @@ public class Lexer {
             this.column = column;
             this.type = type;
             this.indexInSymbolTable = indexInSymbolTable;
+        }
+
+        @Override
+        public int compareTo(Token o) {
+            return this.type.ordinal() - o.type.ordinal();
         }
     }
 
@@ -1432,41 +1437,16 @@ public class Lexer {
     public static LexerOutput getTokensFromFile(String filePath) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
 
-            if (faState == null) {
-                faState = new FAState();
-                generateFa();
-            }
-
-            CommonData data = new CommonData();
-
-            BetweenLinesData commentedCodeData = new BetweenLinesData();
-            BetweenLinesData stringConstantData = new BetweenLinesData();
-            BetweenLinesData preprocessorDirectivesData = new BetweenLinesData();
+            List<String> lines = new ArrayList<>();
 
             String code;
 
             while ((code = bufferedReader.readLine()) != null) {
-                data.code = code;
-                data.column = 0;
-                while (nextToken(
-                        data,
-                        commentedCodeData,
-                        stringConstantData,
-                        preprocessorDirectivesData
-                )) {
-
-                }
-                ++data.line;
+                lines.add(code);
             }
 
-            handleNotClosed(
-                    data,
-                    commentedCodeData,
-                    stringConstantData,
-                    preprocessorDirectivesData);
+            return getTokensFromStringArray(lines.toArray(String[]::new));
 
-            return new LexerOutput(data.symbolTable.toArray(String[]::new), data.tokens.toArray(Token[]::new),
-                    data.tokenErrors.toArray(TokenError[]::new));
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
         } catch (IOException e) {
@@ -1474,6 +1454,42 @@ public class Lexer {
         }
 
         return new LexerOutput();
+    }
+
+    public static LexerOutput getTokensFromStringArray(String[] lines) {
+        if (faState == null) {
+            faState = new FAState();
+            generateFa();
+        }
+
+        CommonData data = new CommonData();
+
+        BetweenLinesData commentedCodeData = new BetweenLinesData();
+        BetweenLinesData stringConstantData = new BetweenLinesData();
+        BetweenLinesData preprocessorDirectivesData = new BetweenLinesData();
+
+        for (String code: lines) {
+            data.code = code;
+            data.column = 0;
+            while (nextToken(
+                    data,
+                    commentedCodeData,
+                    stringConstantData,
+                    preprocessorDirectivesData
+            )) {
+
+            }
+            ++data.line;
+        }
+
+        handleNotClosed(
+                data,
+                commentedCodeData,
+                stringConstantData,
+                preprocessorDirectivesData);
+
+        return new LexerOutput(data.symbolTable.toArray(String[]::new), data.tokens.toArray(Token[]::new),
+                data.tokenErrors.toArray(TokenError[]::new));
     }
 
     public static LexerOutput getTokensFromLine(String line) {
@@ -1513,47 +1529,16 @@ public class Lexer {
     public static LexerOutputLineByLine getTokensFromFileLineByLine(String filePath) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
 
-            if (faState == null) {
-                faState = new FAState();
-                generateFa();
-            }
-
-            CommonData data = new CommonData();
-
-            List<Token[]> tokensByLines = new ArrayList<>();
-
-            BetweenLinesData commentedCodeData = new BetweenLinesData();
-            BetweenLinesData stringConstantData = new BetweenLinesData();
-            BetweenLinesData preprocessorDirectivesData = new BetweenLinesData();
+            List<String> lines = new ArrayList<>();
 
             String code;
 
             while ((code = bufferedReader.readLine()) != null) {
-                data.code = code;
-                data.column = 0;
-                while (nextToken(
-                        data,
-                        commentedCodeData,
-                        stringConstantData,
-                        preprocessorDirectivesData
-                )) {
-
-                }
-
-                tokensByLines.add(data.tokens.toArray(Token[]::new));
-                data.tokens.clear();
-
-                ++data.line;
+                lines.add(code);
             }
 
-            handleNotClosed(
-                    data,
-                    commentedCodeData,
-                    stringConstantData,
-                    preprocessorDirectivesData);
+            return getTokensFromStringArrayLineByLine(lines.toArray(String[]::new));
 
-            return new LexerOutputLineByLine(data.symbolTable.toArray(String[]::new), tokensByLines.toArray(Token[][]::new),
-                    data.tokenErrors.toArray(TokenError[]::new));
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
         } catch (IOException e) {
@@ -1561,6 +1546,48 @@ public class Lexer {
         }
 
         return new LexerOutputLineByLine();
+    }
+
+    public static LexerOutputLineByLine getTokensFromStringArrayLineByLine(String[] lines) {
+        if (faState == null) {
+            faState = new FAState();
+            generateFa();
+        }
+
+        CommonData data = new CommonData();
+
+        List<Token[]> tokensByLines = new ArrayList<>();
+
+        BetweenLinesData commentedCodeData = new BetweenLinesData();
+        BetweenLinesData stringConstantData = new BetweenLinesData();
+        BetweenLinesData preprocessorDirectivesData = new BetweenLinesData();
+
+        for (String code: lines) {
+            data.code = code;
+            data.column = 0;
+            while (nextToken(
+                    data,
+                    commentedCodeData,
+                    stringConstantData,
+                    preprocessorDirectivesData
+            )) {
+
+            }
+
+            tokensByLines.add(data.tokens.toArray(Token[]::new));
+            data.tokens.clear();
+
+            ++data.line;
+        }
+
+        handleNotClosed(
+                data,
+                commentedCodeData,
+                stringConstantData,
+                preprocessorDirectivesData);
+
+        return new LexerOutputLineByLine(data.symbolTable.toArray(String[]::new), tokensByLines.toArray(Token[][]::new),
+                data.tokenErrors.toArray(TokenError[]::new));
     }
 
     public static void outputLexerData(LexerOutput lexerOutput) {
