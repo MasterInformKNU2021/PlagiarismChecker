@@ -1,9 +1,1 @@
-#include <iostream>
-
-int main()
-{
-    std::cout << "Hi, world!\n";
-    int a = 1;
-    int n = d1 + 1;
-    return 0;
-}
+*&a=1;

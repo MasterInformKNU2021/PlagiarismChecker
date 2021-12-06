@@ -5,6 +5,15 @@ import java.util.List;
 
 public class ProgramCode {
     private String file_name="";
+
+    public String getFile_name() {
+        return file_name;
+    }
+
+    public List<Line> getLineList() {
+        return lineList;
+    }
+
     private List<Line> lineList=new ArrayList<>();
 
     public ProgramCode(String fileName){this.file_name=fileName;}
@@ -21,9 +30,12 @@ public class ProgramCode {
 
     @Override
     public String toString() {
-        return "ProgramCode{" +
-                "file_name='" + file_name + '\'' +
-                ", lineList=" + lineList +
-                '}';
+        String res= "ProgramCode{" +
+                "file_name='" + file_name + '\n' ;
+
+            for(int i=0; i<lineList.size(); i++){
+                res+="lineList=" + lineList.get(i) + ", \n";
+            }
+            return res;
     }
 }

@@ -3,6 +3,7 @@ package com.plagiarismchecker;
 import com.plagiarismchecker.lexer.Lexer;
 import com.plagiarismchecker.plagiarismchecker.Line;
 import com.plagiarismchecker.plagiarismchecker.ProgramCode;
+import com.plagiarismchecker.plagiarismchecker.TokenAnalyser;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -62,17 +63,23 @@ public class HelloApplication extends Application {
 //            System.out.println(arrayOfAllProgram.get(i));
 //        }
         addFileToArray("code1.txt");
+        addFileToArray("code2.txt");
         for(int i=0; i<arrayOfAllProgram.size(); i++){
             System.out.println(arrayOfAllProgram.get(i));
         }
 
+        TokenAnalyser ta=new TokenAnalyser(arrayOfAllProgram);
 
+        System.out.println();
+        System.out.println();
+        int place=0;
+        System.out.println(ta.getEqualsByPointer(arrayOfAllProgram.get(0).getLineList().get(place),arrayOfAllProgram.get(1).getLineList().get(place)));
         System.exit(0);
 
 //        launch();
     }
     public static void addFileToArray(String file){
-        Lexer.LexerOutputLineByLine lexerOutputLineByLineForFirstText = Lexer.getTokensFromFileLineByLine("code1.txt");
+        Lexer.LexerOutputLineByLine lexerOutputLineByLineForFirstText = Lexer.getTokensFromFileLineByLine(file);
         Lexer.outputLexerDataLineByLine(lexerOutputLineByLineForFirstText);
         Lexer.Token[][] firstTokens = lexerOutputLineByLineForFirstText.tokensByLines;
 
