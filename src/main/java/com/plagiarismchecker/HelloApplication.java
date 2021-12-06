@@ -73,7 +73,15 @@ public class HelloApplication extends Application {
         System.out.println();
         System.out.println();
         int place=0;
-        System.out.println(ta.getEqualsByPointer(arrayOfAllProgram.get(0).getLineList().get(place),arrayOfAllProgram.get(1).getLineList().get(place)));
+
+
+        //результат всіх обчислень в вигляді String
+        String result=ta.computeAllFiles(arrayOfAllProgram);
+        System.out.println(result);
+
+
+
+        //System.out.println(ta.getEqualsByChangedCondition(arrayOfAllProgram.get(0).getLineList().get(place),arrayOfAllProgram.get(1).getLineList().get(place)));
         System.exit(0);
 
 //        launch();
