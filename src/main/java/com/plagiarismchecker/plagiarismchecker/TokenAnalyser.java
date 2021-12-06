@@ -1,5 +1,6 @@
 package com.plagiarismchecker.plagiarismchecker;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +104,8 @@ public class TokenAnalyser {
             similarity+=(double)makeOneComparison(listL1.get(i), listL2.get(i))/listL1.size();
 
         }
-        String s=("Programs: "+name1+" and : "+name2+" is similar at: "+similarity+"%");
+        DecimalFormat df = new DecimalFormat("##.##");
+        String s=("Programs: "+name1+" and : "+name2+" is similar at: "+df.format(similarity)+"%");
         return s;
 
     }
